@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>BareMetal Assets with OneView</title>
+
+    <link rel="stylesheet" href="index.css"/>
+    <script src="assets.js"></script>
+    <script language="javascript">
+
+function showAsset(asset) {
+        if (! assets[asset]) return "";
+        var html = "<table class='table'><tr class='row header'><td class='cell header1' colspan='2'>"+asset+"</td></tr>";
+        if (assets[asset].role != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>ROLE</td><td>" + assets[asset].role + "</td>";
+                html += "</tr>";
+        }
+        if (assets[asset].url != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>URL</td><td>" + assets[asset].url + "</td>";
+                html += "</tr>";
+        }
+        if (assets[asset].mac != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>MAC</td><td>" + assets[asset].mac + "</td>";
+                html += "</tr>";
+        }
+        html += "</table>";
+        return html;
+}
+function showAssets() {
+         for (var asset in assets) {
+                  var element = document.getElementById("asset:"+asset);
+                  if (element === null) {
+                           var div = document.getElementById("assets");
+                           div.innerHTML = div.innerHTML + "<div id='asset:"+asset+"'></div>";
+                           element = document.getElementById("asset:"+asset);
+                  }
+                  element.innerHTML = showAsset(asset);
+         }
+}
+
+function init() {
+        showAssets();
+}
+
+  </script>
+
+</head>
+<body onload="init()">
+
+<span>List of provisionned assets</span>
+<div id="assets" class='wrapper'>
+</div>
+<br/>
+<form method="post">
+  Name of the new asset (to be used on asset creation): <input type="text" name="asset" size="10"/>
+  <input type="submit" value="Add the asset"/>
+</form>
+
+</body>
+</html>
