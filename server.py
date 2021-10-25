@@ -10,7 +10,7 @@ import json
 from pprint import pprint
 from hpeOneView.oneview_client import OneViewClient
 import sys, os
-
+import base64
 
 class S(BaseHTTPRequestHandler):
     def _set_response(self, ct):
@@ -90,10 +90,17 @@ def assets():
       str=yaml.replace('@name@', profile['name'])
       for key in ['url', 'mac', 'role']:
         str = str.replace('@'+key+'@', asset[key])
+      str=str.replace('@username64@', b64(asset['username'])
+      str=str.replace('@password64@', b64(asset['password'])
       file.write(str)
       file.close()
-  pprint(assets)
+  #pprint(assets)
   return assets
+
+def b64(message):
+  message_bytes = message.encode('ascii')
+  base64_bytes = base64.b64encode(message_bytes)
+  return base64_bytes.decode('ascii')        
 
 if __name__ == '__main__':
     from sys import argv
