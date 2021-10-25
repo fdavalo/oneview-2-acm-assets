@@ -1,0 +1,44 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: oneview-2-acm-assets
+  namespace: open-cluster-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oneview-2-acm-assets
+  template:
+    metadata:
+      labels:
+        app: oneview-2-acm-assets
+    spec:
+      containers:
+        - name: cli
+          command:
+            - sh
+            - '-c'
+            - tail -f /dev/null
+          image: 'cli'            
+        - name: server
+          command:
+            - python3
+            - server.py
+            - 8080            
+          env:
+            - name: ONEVIEWSDK_IP
+              value: oneview.redhat.hpecic.net
+            - name: ONEVIEWSDK_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: oneview
+                  key: username
+            - name: ONEVIEWSDK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: oneview
+                  key: password
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
