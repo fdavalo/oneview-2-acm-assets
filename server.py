@@ -41,7 +41,7 @@ class S(BaseHTTPRequestHandler):
             post_data = self.rfile.read(content_length).decode('utf-8')
             if post_data.startswith("asset=") and post_data != "asset=":
               serverName = post_data.split("=")[1]
-              print(serverName)
+              createAsset(serverName)
             file = open("resources/index.html")
             self._set_response('text/html')
             self.wfile.write(file.read().encode('utf-8'))
