@@ -15,11 +15,17 @@ spec:
     spec:
       containers:
         - name: cli
+          image: 'quay.io/bitnami/kubectl:1.21'
           command:
-            - sh
+            - bash
             - '-c'
-            - tail -f /dev/null
-          image: 'quay.io/bitnami/kubectl:1.21'            
+            - >-
+              while [[ 1 ]]; do curl http://localhost:8080/assets.js; for file
+              in `ls -1 assets`; do kubectl apply -f assets/$file; done; sleep
+              300; done
+          volumeMounts:
+            - name: assets
+              mountPath: assets              
         - name: server
           command:
             - python3
@@ -42,3 +48,10 @@ spec:
             - containerPort: 8080
               protocol: TCP
           image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+          volumeMounts:
+            - name: assets
+              mountPath: /opt/app-root/src/assets          
+      serviceAccount: multicluster-operators
+      volumes:
+        - name: assets
+          emptyDir: {}          
