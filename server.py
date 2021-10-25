@@ -90,8 +90,8 @@ def assets():
       str=yaml.replace('@name@', profile['name'])
       for key in ['url', 'mac', 'role']:
         str = str.replace('@'+key+'@', asset[key])
-      str=str.replace('@username64@', b64(asset['username'])
-      str=str.replace('@password64@', b64(asset['password'])
+      str=str.replace('@username64@', b64(asset['username']))
+      str=str.replace('@password64@', b64(asset['password']))
       file.write(str)
       file.close()
   #pprint(assets)
