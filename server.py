@@ -102,6 +102,43 @@ def b64(message):
   base64_bytes = base64.b64encode(message_bytes)
   return base64_bytes.decode('ascii')        
 
+def createAsset(serverName):
+  oneview_client = OneViewClient.from_environment_variables()
+  server_profiles = oneview_client.server_profiles
+  all_profiles = server_profiles.get_all()
+  server_hardwares = oneview_client.server_hardware
+  server_hardware_all = server_hardwares.get_all()
+  profile_templates = oneview_client.server_profile_templates
+  all_templates = profile_templates.get_all()
+
+  servers = []
+  for serv in server_hardware_all:
+    if serv['name'] == serverName:
+      return False
+    if serv['powerState'] == 'Off' and \
+       serv['maintenanceMode'] == False and \
+       serv['model'] == 'ProLiant BL460c Gen9' and \
+       serv['state'] == 'NoProfileApplied' and \
+       serv['status'] != 'Critical':
+      servers.append(serv)
+
+  serv_template = None
+  for template in all_templates:
+    if template['name'] == "Openshift-BM":
+      serv_template = template;
+
+  server = servers[-1];
+  options = dict(
+      name=serverName,
+      serverHardwareUri=server['uri'],
+      serverProfileTemplateUri=serv_template['uri']
+  )
+  profile = oneview_client.server_profiles.create(options, force=True)
+
+  options = dict(serverProfileTemplateUri=serv_template['uri'])
+  profile.patch(operation="replace", path="/templateCompliance", value="Compliant")
+  return True
+
 if __name__ == '__main__':
     from sys import argv
 
