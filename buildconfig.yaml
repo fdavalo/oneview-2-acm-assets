@@ -3,19 +3,21 @@ apiVersion: build.openshift.io/v1
 metadata:
   name: "oneview-2-acm-assets" 
 spec:
-  runPolicy: "Serial" 
-  triggers: 
-    - type: "GitHub"
-    - type: "ImageChange"
-  source: 
-    git:
-      uri: "https://github.com/fdavalo/hpe-oneview-sdk-for-python"
-  strategy: 
+  output:
+    to:
+      kind: DockerImage
+      name: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+    pushSecret:
+      name: fdavalo-fdavalo-robot-pull-secret
+  strategy:
+    type: Source
     sourceStrategy:
       from:
-        kind: "ImageStreamTag"
-        name: "python:3.6"
-  output: 
-    to:
-      kind: "DockerImage"
-      name: "quay.io/fdavalo/oneview-2-acm-assets:latest"
+        kind: ImageStreamTag
+        namespace: openshift
+        name: 'python:3.8'
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/fdavalo/oneview-2-acm-assets'
+  runPolicy: Serial
