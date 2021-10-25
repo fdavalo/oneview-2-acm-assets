@@ -19,7 +19,7 @@ spec:
             - sh
             - '-c'
             - tail -f /dev/null
-          image: 'cli'            
+          image: 'quay.io/bitnami/kubectl:1.21'            
         - name: server
           command:
             - python3
