@@ -4,7 +4,7 @@ metadata:
   name: oneview-2-acm-assets
   namespace: open-cluster-management
 spec:
-  host: oneview-2-acm-assets
+  host: oneview-2-acm-assets.apps.ocp1.redhat.hpecic.net
   to:
     kind: Service
     name: oneview-2-acm-assets
