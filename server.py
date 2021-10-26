@@ -113,7 +113,7 @@ def createAsset(serverName):
 
   if serverName != '':
     for prof in all_profiles:
-      prof['name'] == serverName:
+      if prof['name'] == serverName:
         return False
     
   servers = []
