@@ -84,7 +84,6 @@ def assets():
     for hard in server_hardware_all:
       if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
         asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
-    assets[profile['name']]=asset
     if 'url' in asset and 'mac' in asset and 'role' in asset:
       file=open('assets/'+profile['name']+'.yaml', 'w+')
       str=yaml.replace('@name@', profile['name'])
@@ -94,6 +93,7 @@ def assets():
       str=str.replace('@password64@', b64(asset['password']))
       file.write(str)
       file.close()
+      assets[profile['name']]=asset
   #pprint(assets)
   return assets
 
