@@ -82,7 +82,7 @@ def assets():
       if conn['name'] == "RedHat_MGMT":
         asset['mac']=conn['mac']
     for hard in server_hardware_all:
-      if hard['uri'] == profile['serverHardwareUri']:
+      if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
         asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
     assets[profile['name']]=asset
     if 'url' in asset and 'mac' in asset and 'role' in asset:
