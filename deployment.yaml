@@ -20,9 +20,14 @@ spec:
             - bash
             - '-c'
             - >-
-              while [[ 1 ]]; do curl http://localhost:8080/assets.js; for file
-              in `ls -1 assets`; do kubectl apply -f assets/$file; done; sleep
-              300; done
+              while [[ 1 ]]; 
+              do /bin/rm -rf old; mkdir old; 
+              for file in `ls -1 assets`; do mv assets/$file old; done;
+              curl http://localhost:8080/assets.js; 
+              for file in `ls -1 assets`; do kubectl apply -f assets/$file; done;
+              for file in `ls -1 old`; do if [[ -f assets/$file ]]; then kubectl delete -f old/$file; fi; done;
+              sleep 300; 
+              done
           volumeMounts:
             - name: assets
               mountPath: assets              
@@ -30,7 +35,7 @@ spec:
           command:
             - python3
             - server.py
-            - 8080            
+            - '8080'            
           env:
             - name: ONEVIEWSDK_IP
               value: oneview.redhat.hpecic.net
