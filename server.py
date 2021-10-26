@@ -111,11 +111,15 @@ def createAsset(serverName):
   profile_templates = oneview_client.server_profile_templates
   all_templates = profile_templates.get_all()
 
+  if serverName != '':
+    for prof in all_profiles:
+      prof['name'] == serverName:
+        return False
+    
   servers = []
   for serv in server_hardware_all:
-    if serv['name'] == serverName:
-      return False
-    if serv['powerState'] == 'Off' and \
+    if serv['serverProfileUri'] is None and \
+       serv['powerState'] == 'Off' and \
        serv['maintenanceMode'] == False and \
        serv['model'] == 'ProLiant BL460c Gen9' and \
        serv['state'] == 'NoProfileApplied' and \
@@ -128,6 +132,7 @@ def createAsset(serverName):
       serv_template = template;
 
   server = servers[-1];
+  if serverName == '': serverName = server['serialNumber'];
   options = dict(
       name=serverName,
       serverHardwareUri=server['uri'],
