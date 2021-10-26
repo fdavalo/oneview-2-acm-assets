@@ -21,7 +21,7 @@ spec:
             - '-c'
             - >-
               while [[ 1 ]]; 
-              do /bin/rm -rf old; mkdir old; 
+              do /bin/rm -f old/*; 
               for file in `ls -1 assets`; do mv assets/$file old; done;
               curl http://localhost:8080/assets.js; 
               for file in `ls -1 assets`; do kubectl apply -f assets/$file; done;
@@ -30,7 +30,9 @@ spec:
               done
           volumeMounts:
             - name: assets
-              mountPath: assets              
+              mountPath: assets        
+            - name: last
+              mountPath: old                 
         - name: server
           command:
             - python3
@@ -59,4 +61,6 @@ spec:
       serviceAccount: multicluster-operators
       volumes:
         - name: assets
-          emptyDir: {}          
+          emptyDir: {}   
+        - name: last
+          emptyDir: {}            
