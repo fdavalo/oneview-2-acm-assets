@@ -1,3 +1,4 @@
 resources:
 - deployment.yaml
 - buildconfig.yaml
+- service.yaml
