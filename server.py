@@ -128,7 +128,7 @@ def createAsset(serverName):
 
   serv_template = None
   for template in all_templates:
-    if template['name'] == "Openshift-BM":
+    if template['name'] == "Openshift-BM2":
       serv_template = template;
 
   server = servers[-1];
