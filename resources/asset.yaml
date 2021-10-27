@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: @name@-secret
+  name: baremetal-asset-secret
   namespace: open-cluster-management
 type: Opaque
 data:
@@ -16,6 +16,6 @@ metadata:
 spec:
   bmc:
     address: @url@
-    credentialsName: @name@-secret
+    credentialsName: baremetal-asset-secret
   bootMACAddress: @mac@
   role: @role@
