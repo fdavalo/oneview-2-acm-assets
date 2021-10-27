@@ -29,17 +29,26 @@ function showAsset(asset) {
         html += "</table>";
         return html;
 }
+        
 function showAssets() {
-         for (var asset in assets) {
-                  var element = document.getElementById("asset:"+asset);
-                  if (element === null) {
-                           var div = document.getElementById("assets");
-                           div.innerHTML = div.innerHTML + "<div id='asset:"+asset+"'></div>";
-                           element = document.getElementById("asset:"+asset);
-                  }
-                  element.innerHTML = showAsset(asset);
-         }
+        var div = document.getElementById("assets");
+        var html = "<table>";
+        var maxrow = 3;
+        var i = 0;
+        for (var asset in assets) {
+                if (i%maxrow == 0) html += "<tr>";
+                html += "<td><div id='asset:"+asset+"'></div></td>"
+                if (i%maxrow == (maxrow-1)) html += "</tr>";
+                i += 1;
+        }
+        html += "</table>";
+        div.innerHTML = html;
+        for (var asset in assets) {
+            element = document.getElementById("asset:"+asset);
+            element.innerHTML = showAsset(asset);
+        }
 }
+
 
 function init() {
         showAssets();
@@ -50,7 +59,7 @@ function init() {
 </head>
 <body onload="init()">
 
-<span>List of provisionned assets</span>
+<h2>List of provisionned assets</h2>
 <div id="assets" class='wrapper'>
 </div>
 <br/>
