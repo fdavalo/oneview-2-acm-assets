@@ -87,7 +87,7 @@ def assets():
       if 'worker' in profile['name']: role = 'worker'
       asset = {'role':role, 'username':os.environ.get('ONEVIEWSDK_USERNAME', ''),'password':os.environ.get('ONEVIEWSDK_PASSWORD', '')}
       for conn in profile['connectionSettings']['connections']:
-        if conn['name'] == "Redhat_Provisionning_1":
+        if conn['name'] == "Redhat_MGMT":
           asset['mac']=conn['mac']
       for hard in server_hardware_all:
         if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
