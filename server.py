@@ -14,6 +14,7 @@ import base64
 
 class S(BaseHTTPRequestHandler):
     oneviewClient = None
+    used = False
     
     def _set_response(self, ct):
         self.send_response(200)
@@ -72,33 +73,39 @@ def assets():
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
+  if S.used: return assets
+   S.used = True
   oneview_client = oneviewClient()
-  server_profiles = oneview_client.server_profiles
-  server_hardwares = oneview_client.server_hardware
-  server_hardware_all = server_hardwares.get_all()
-  all_profiles = server_profiles.get_all()
-  for profile in all_profiles:
-    role = ''
-    if 'master' in profile['name']: role = 'master'
-    if 'worker' in profile['name']: role = 'worker'
-    asset = {'role':role, 'username':os.environ.get('ONEVIEWSDK_USERNAME', ''),'password':os.environ.get('ONEVIEWSDK_PASSWORD', '')}
-    for conn in profile['connectionSettings']['connections']:
-      if conn['name'] == "Redhat_Provisionning_1":
-        asset['mac']=conn['mac']
-    for hard in server_hardware_all:
-      if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
-        asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
-    if 'url' in asset and 'mac' in asset and 'role' in asset:
-      file=open('assets/'+profile['name']+'.yaml', 'w+')
-      str=yaml.replace('@name@', profile['name'])
-      for key in ['url', 'mac', 'role']:
+  try:
+    server_profiles = oneview_client.server_profiles
+    server_hardwares = oneview_client.server_hardware
+    server_hardware_all = server_hardwares.get_all()
+    all_profiles = server_profiles.get_all()
+    for profile in all_profiles:
+      role = ''
+      if 'master' in profile['name']: role = 'master'
+      if 'worker' in profile['name']: role = 'worker'
+      asset = {'role':role, 'username':os.environ.get('ONEVIEWSDK_USERNAME', ''),'password':os.environ.get('ONEVIEWSDK_PASSWORD', '')}
+      for conn in profile['connectionSettings']['connections']:
+        if conn['name'] == "Redhat_Provisionning_1":
+          asset['mac']=conn['mac']
+      for hard in server_hardware_all:
+        if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
+          asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
+      if 'url' in asset and 'mac' in asset and 'role' in asset:
+        file=open('assets/'+profile['name']+'.yaml', 'w+')
+        str=yaml.replace('@name@', profile['name'])
+        for key in ['url', 'mac', 'role']:
         str = str.replace('@'+key+'@', asset[key])
-      str=str.replace('@username64@', b64(asset['username']))
-      str=str.replace('@password64@', b64(asset['password']))
-      file.write(str)
-      file.close()
-      assets[profile['name']]=asset
+        str=str.replace('@username64@', b64(asset['username']))
+        str=str.replace('@password64@', b64(asset['password']))
+        file.write(str)
+        file.close()
+        assets[profile['name']]=asset
+  except Exception:
+    S.used = False
   #pprint(assets)
+  S.used = False
   return assets
 
 def b64(message):
@@ -107,7 +114,7 @@ def b64(message):
   return base64_bytes.decode('ascii')        
 
 def createAsset(serverName):
-  oneview_client = oneviewClient()
+  oneview_client = OneViewClient.from_environment_variables()
   server_profiles = oneview_client.server_profiles
   all_profiles = server_profiles.get_all()
   server_hardwares = oneview_client.server_hardware
