@@ -13,6 +13,8 @@ import sys, os
 import base64
 
 class S(BaseHTTPRequestHandler):
+    oneviewClient = None
+    
     def _set_response(self, ct):
         self.send_response(200)
         self.send_header('Content-type', ct)
@@ -39,8 +41,10 @@ class S(BaseHTTPRequestHandler):
         if self.path == "/index.html" or self.path == "/":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length).decode('utf-8')
-            if post_data.startswith("asset=") and post_data != "asset=":
-              serverName = post_data.split("=")[1]
+            if post_data.startswith("asset="):
+              serverName = ""
+              if post_data != "asset=":
+                serverName = post_data.split("=")[1]
               createAsset(serverName)
             file = open("resources/index.html")
             self._set_response('text/html')
@@ -68,7 +72,7 @@ def assets():
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
-  oneview_client = OneViewClient.from_environment_variables()
+  oneview_client = oneviewClient()
   server_profiles = oneview_client.server_profiles
   server_hardwares = oneview_client.server_hardware
   server_hardware_all = server_hardwares.get_all()
@@ -103,7 +107,7 @@ def b64(message):
   return base64_bytes.decode('ascii')        
 
 def createAsset(serverName):
-  oneview_client = OneViewClient.from_environment_variables()
+  oneview_client = oneviewClient()
   server_profiles = oneview_client.server_profiles
   all_profiles = server_profiles.get_all()
   server_hardwares = oneview_client.server_hardware
@@ -143,6 +147,14 @@ def createAsset(serverName):
   options = dict(serverProfileTemplateUri=serv_template['uri'])
   profile.patch(operation="replace", path="/templateCompliance", value="Compliant")
   return True
+
+def oneviewClient():
+  if S.oneviewClient is None:
+    try:
+      S.oneviewClient = OneViewClient.from_environment_variables()
+    except Exception:
+      sys.exit(1)
+  return S.oneviewClient
 
 if __name__ == '__main__':
     from sys import argv
