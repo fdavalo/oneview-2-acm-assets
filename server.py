@@ -74,7 +74,7 @@ def assets():
   yaml = file.read()
   file.close()
   if S.used: return assets
-   S.used = True
+  S.used = True
   oneview_client = oneviewClient()
   try:
     server_profiles = oneview_client.server_profiles
@@ -96,7 +96,7 @@ def assets():
         file=open('assets/'+profile['name']+'.yaml', 'w+')
         str=yaml.replace('@name@', profile['name'])
         for key in ['url', 'mac', 'role']:
-        str = str.replace('@'+key+'@', asset[key])
+          str = str.replace('@'+key+'@', asset[key])
         str=str.replace('@username64@', b64(asset['username']))
         str=str.replace('@password64@', b64(asset['password']))
         file.write(str)
