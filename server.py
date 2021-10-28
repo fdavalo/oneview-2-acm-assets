@@ -143,7 +143,7 @@ def createAsset(serverName):
       serv_template = template;
 
   server = servers[-1];
-  if serverName == '': serverName = server['serialNumber'];
+  if serverName == '': serverName = 'node-'+server['serialNumber'].lower();
   options = dict(
       name=serverName,
       serverHardwareUri=server['uri'],
