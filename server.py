@@ -99,15 +99,16 @@ def assets():
           file.close()
       except Exception as ee:
           pass
-      if 'url' in asset and 'mac' in asset and 'role' in asset and 'cluster' not in asset:
-        file=open('assets/'+profile['name']+'.yaml', 'w+')
-        str=yaml.replace('@name@', profile['name'])
-        for key in ['url', 'mac', 'role']:
-          str = str.replace('@'+key+'@', asset[key])
-        str=str.replace('@username64@', b64(asset['username']))
-        str=str.replace('@password64@', b64(asset['password']))
-        file.write(str)
-        file.close()
+      if 'url' in asset and 'mac' in asset and 'role' in asset:
+        if 'cluster' not in asset:
+          file=open('assets/'+profile['name']+'.yaml', 'w+')
+          str=yaml.replace('@name@', profile['name'])
+          for key in ['url', 'mac', 'role']:
+            str = str.replace('@'+key+'@', asset[key])
+          str=str.replace('@username64@', b64(asset['username']))
+          str=str.replace('@password64@', b64(asset['password']))
+          file.write(str)
+          file.close()
         assets[profile['name']]=asset
   except Exception as e:
     pprint(e)
