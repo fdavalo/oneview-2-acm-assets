@@ -97,7 +97,7 @@ def assets():
           file=open("assets/"+profile['name']+".cluster")
           asset['cluster']=file.read()
           file.close()
-      except Exception ee:
+      except Exception as ee:
           pass
       if 'url' in asset and 'mac' in asset and 'role' in asset and 'cluster' not in asset:
         file=open('assets/'+profile['name']+'.yaml', 'w+')
@@ -109,7 +109,7 @@ def assets():
         file.write(str)
         file.close()
         assets[profile['name']]=asset
-  except Exception e:
+  except Exception as e:
     pprint(e)
   #pprint(assets)
   S.used = False
