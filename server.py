@@ -70,14 +70,6 @@ def run(server_class=HTTPServer, handler_class=S, port=80):
 
 def assets():
   assets = {}
-  try:
-    file=open('assets/servers.json')
-    assets = json.loads(file.read())
-    file.close()
-  except:
-    file=open('assets/servers.json', 'w+')
-    file.write('{}')
-    file.close()
   if S.used: return assets
   S.used = True
   file=open('resources/asset.yaml')
@@ -100,7 +92,14 @@ def assets():
       for hard in server_hardware_all:
         if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
           asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
-      if 'url' in asset and 'mac' in asset and 'role' in asset:
+      cluster = None
+      try:
+          file=open("assets/"+profile['name']+".cluster")
+          asset['cluster']=file.read()
+          file.close()
+      except Exception ee:
+          pass
+      if 'url' in asset and 'mac' in asset and 'role' in asset and 'cluster' not in asset:
         file=open('assets/'+profile['name']+'.yaml', 'w+')
         str=yaml.replace('@name@', profile['name'])
         for key in ['url', 'mac', 'role']:
@@ -109,17 +108,10 @@ def assets():
         str=str.replace('@password64@', b64(asset['password']))
         file.write(str)
         file.close()
-        if profile['name'] in assets:
-          for key in asset: 
-            assets[profile['name']][key] = asset[key]
-        else: 
-          assets[profile['name']]=asset
+        assets[profile['name']]=asset
   except Exception e:
     pprint(e)
   #pprint(assets)
-  file=open('assets/servers.json', 'w+')
-  file.write(json.dumps(assets, indent=True))
-  file.close()
   S.used = False
   return assets
 
