@@ -22,9 +22,9 @@ spec:
             - >-
               while [[ 1 ]]; 
               do /bin/rm -f old/*; 
-              for file in `ls -1 assets`; do mv assets/$file old; done;
+              for file in `ls -1 assets/*.yaml`; do mv $file old; done;
               curl http://localhost:8080/assets.js; 
-              for file in `ls -1 assets`; do kubectl apply -f assets/$file; done;
+              for file in `ls -1 assets/*.yaml`; do kubectl apply -f $file; done;
               for file in `ls -1 old`; do if [[ ! -f assets/$file ]]; then kubectl delete -f old/$file; fi; done;
               sleep 60; 
               done
