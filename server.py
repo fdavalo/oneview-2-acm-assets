@@ -70,11 +70,19 @@ def run(server_class=HTTPServer, handler_class=S, port=80):
 
 def assets():
   assets = {}
+  try:
+    file=open('assets/servers.json')
+    assets = json.loads(file.read())
+    file.close()
+  except:
+    file=open('assets/servers.json', 'w+')
+    file.write('{}')
+    file.close()
+  if S.used: return assets
+  S.used = True
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
-  if S.used: return assets
-  S.used = True
   oneview_client = oneviewClient()
   try:
     server_profiles = oneview_client.server_profiles
@@ -101,10 +109,17 @@ def assets():
         str=str.replace('@password64@', b64(asset['password']))
         file.write(str)
         file.close()
-        assets[profile['name']]=asset
-  except Exception:
-    S.used = False
+        if profile['name'] in assets:
+          for key in asset: 
+            assets[profile['name']][key] = asset[key]
+        else: 
+          assets[profile['name']]=asset
+  except Exception e:
+    pprint(e)
   #pprint(assets)
+  file=open('assets/servers.json', 'w+')
+  file.write(json.dumps(assets, indent=True))
+  file.close()
   S.used = False
   return assets
 
