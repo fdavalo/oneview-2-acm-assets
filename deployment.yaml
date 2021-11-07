@@ -28,15 +28,19 @@ spec:
                 if [[ ! -f /tmp/kubeconfig.$cluster ]]; then 
                  kubectl -n $cluster get secret | grep "\-admin\-kubeconfig" | awk '{system("kubectl -n '$cluster' get secret "$1" -o jsonpath=\"{.data.kubeconfig}\" | base64 -d > /tmp/kubeconfig.'$cluster'");}'
                 fi
-                KUBECONFIG=/tmp/kubeconfig.$cluster kubectl get nodes | awk '{if ($1!="NAME") system("echo '$cluster' > /tmp/"$1".cluster");}'
+                if [[ -f /tmp/kubeconfig.$cluster ]]; then 
+                 KUBECONFIG=/tmp/kubeconfig.$cluster kubectl get nodes | awk '{if ($1!="NAME") system("echo '$cluster' > /tmp/"$1".cluster");}'
+                fi
                done
-               /bin/rm -f assets/*.cluster
+               /bin/rm -f assets/*.cluster assets/*.bma
                cp /tmp/*.cluster assets
                /bin/rm -f old/*; 
                for file in `ls -1 assets/*.yaml`; do mv $file old; done;
                curl http://localhost:8080/assets.js; 
                for file in `ls -1 assets/*.yaml`; do kubectl apply -f $file; done;
                for file in `ls -1 old`; do if [[ ! -f assets/$file ]]; then kubectl delete -f old/$file; fi; done;
+               kubectl get baremetalassets.inventory.open-cluster-management.io -n open-cluster-management | awk '{if ($1!="NAME") system("touch /assets/"$1".bma");}'
+               for host in `ls -1 assets | grep "\.bma$"`; do if [[ ! -f assets/$host.yaml ]]; then kubectl delete baremetalassets.inventory.open-cluster-management.io $host -n open-cluster-management; fi; done;
                sleep 60; 
               done
           volumeMounts:
