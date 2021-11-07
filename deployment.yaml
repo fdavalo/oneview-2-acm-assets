@@ -21,12 +21,23 @@ spec:
             - '-c'
             - >-
               while [[ 1 ]]; 
-              do /bin/rm -f old/*; 
-              for file in `ls -1 assets/*.yaml`; do mv $file old; done;
-              curl http://localhost:8080/assets.js; 
-              for file in `ls -1 assets/*.yaml`; do kubectl apply -f $file; done;
-              for file in `ls -1 old`; do if [[ ! -f assets/$file ]]; then kubectl delete -f old/$file; fi; done;
-              sleep 60; 
+              do
+               find /tmp -name *.cluster -mmin -60 -delete
+               find /tmp -name kubeconfig.* -mmin -60 -delete
+               for cluster in `kubectl get managedclusters.cluster.open-cluster-management.io | awk '{if ($1 != "NAME") print $1;}'`; do
+                if [[ ! -f /tmp/kubeconfig.$cluster ]]; then 
+                 kubectl -n $cluster get secret | grep "\-admin\-kubeconfig" | awk '{system("kubectl -n '$cluster' get secret "$1" -o jsonpath=\"{.data.kubeconfig}\" | base64 -d > /tmp/kubeconfig.'$cluster'");}'
+                fi
+                KUBECONFIG=/tmp/kubeconfig.$cluster kubectl get nodes | awk '{if ($1!="NAME") system("echo '$cluster' > /tmp/"$1".cluster");}'
+               done
+               /bin/rm -f assets/*.cluster
+               cp /tmp/*.cluster assets
+               /bin/rm -f old/*; 
+               for file in `ls -1 assets/*.yaml`; do mv $file old; done;
+               curl http://localhost:8080/assets.js; 
+               for file in `ls -1 assets/*.yaml`; do kubectl apply -f $file; done;
+               for file in `ls -1 old`; do if [[ ! -f assets/$file ]]; then kubectl delete -f old/$file; fi; done;
+               sleep 60; 
               done
           volumeMounts:
             - name: assets
