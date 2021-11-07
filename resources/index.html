@@ -26,6 +26,11 @@ function showAsset(asset) {
                 html += "<td class='cell'>MAC</td><td>" + assets[asset].mac + "</td>";
                 html += "</tr>";
         }
+        if (assets[asset].cluster != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>CLUSTER</td><td>" + assets[asset].cluster + "</td>";
+                html += "</tr>";
+        }    
         html += "</table>";
         return html;
 }
