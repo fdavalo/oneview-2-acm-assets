@@ -109,6 +109,9 @@ def assets():
           str=str.replace('@password64@', b64(asset['password']))
           file.write(str)
           file.close()
+          file=open('assets/'+profile['name']+'.mac', 'w+')
+          file.write(asset['mac'])
+          file.close()
         assets[profile['name']]=asset
   except Exception as e:
     pprint(e)
@@ -147,7 +150,7 @@ def createAsset(serverName):
 
   serv_template = None
   for template in all_templates:
-    if template['name'] == "Openshift-BM":
+    if template['name'] == "Openshift-BM2":
       serv_template = template;
 
   server = servers[-1];
