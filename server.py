@@ -153,6 +153,7 @@ def createAsset(serverName):
     if template['name'] == "Openshift-BM2":
       serv_template = template;
 
+  if len(servers) == 0: return False
   server = servers[-1];
   if serverName == '': serverName = 'node-'+server['serialNumber'].lower();
   options = dict(
