@@ -36,11 +36,11 @@ spec:
                cp /tmp/*.cluster assets
                /bin/rm -f old/*; 
                for file in `ls -1 assets/*.yaml`; do mv $file old; done;
-               curl http://localhost:8080/assets.js; 
+               curl http://localhost:8080/assets.js 2>/dev/null 1>/dev/null; 
                for host in `ls -1 assets | grep "\.yaml$" | awk -F\. '{print $1;}'`; do 
                 kubectl apply -f assets/$host.yaml
                 mac=`cat assets/$host.mac`
-                curl http://cluster-ip.redhat.hpecic.net:8080 -d "host=$host&mac=$mac"
+                curl http://cluster-ip.redhat.hpecic.net:8080 -d "host=$host&mac=$mac" 2>/dev/null 1>/dev/null
                done;
                for file in `ls -1 old`; do if [[ ! -f assets/$file ]]; then kubectl delete -f old/$file; fi; done;
                kubectl get baremetalassets.inventory.open-cluster-management.io -n open-cluster-management | awk '{if ($1!="NAME") system("touch /assets/"$1".bma");}'
