@@ -89,6 +89,8 @@ def assets():
       for conn in profile['connectionSettings']['connections']:
         if conn['name'] == "RedHat_MGMT":
           asset['mac']=conn['mac']
+        if conn['name'] == "RedHat_WRKLD":
+          asset['mac-baremetal']=conn['mac']        
       for hard in server_hardware_all:
         if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
           asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
@@ -110,7 +112,7 @@ def assets():
           file.write(str)
           file.close()
           file=open('assets/'+profile['name']+'.mac', 'w+')
-          file.write(asset['mac'])
+          file.write(asset['mac-baremetal'])
           file.close()
         assets[profile['name']]=asset
   except Exception as e:
