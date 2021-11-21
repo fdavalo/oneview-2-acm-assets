@@ -49,7 +49,7 @@ class S(BaseHTTPRequestHandler):
                 arr = param.split("=")
                 if arr[0]=="asset" and len(arr)>1:
                     serverName = arr[1]
-                if arr[O]=="template" and len(arr)>1:
+                if arr[0]=="template" and len(arr)>1:
                     templateName = arr[1]
             createAsset(serverName, templateName)
             file = open("resources/index.html")
