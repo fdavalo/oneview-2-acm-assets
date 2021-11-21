@@ -42,11 +42,16 @@ class S(BaseHTTPRequestHandler):
         if self.path == "/index.html" or self.path == "/":
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length).decode('utf-8')
-            if post_data.startswith("asset="):
-              serverName = ""
-              if post_data != "asset=":
-                serverName = post_data.split("=")[1]
-              createAsset(serverName)
+            params=post_data.split("&")
+            serverName = ""
+            templateName = "Openshift-BM"
+            for param in params:
+                arr = param.split("=")
+                if arr[0]=="asset" and len(arr)>1:
+                    serverName = arr[1]
+                if arr[O]=="template" and len(arr)>1:
+                    templateName = arr[1]
+            createAsset(serverName, templateName)
             file = open("resources/index.html")
             self._set_response('text/html')
             self.wfile.write(file.read().encode('utf-8'))
@@ -126,7 +131,7 @@ def b64(message):
   base64_bytes = base64.b64encode(message_bytes)
   return base64_bytes.decode('ascii')        
 
-def createAsset(serverName):
+def createAsset(serverName, templateName):
   oneview_client = OneViewClient.from_environment_variables()
   server_profiles = oneview_client.server_profiles
   all_profiles = server_profiles.get_all()
@@ -152,10 +157,11 @@ def createAsset(serverName):
 
   serv_template = None
   for template in all_templates:
-    if template['name'] == "Openshift-BM":
+    if template['name'] == templateName:
       serv_template = template;
 
   if len(servers) == 0: return False
+  if serv_template is None: return False
   server = servers[-1];
   if serverName == '': serverName = 'node-'+server['serialNumber'].lower();
   options = dict(
