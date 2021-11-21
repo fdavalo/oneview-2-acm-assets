@@ -86,11 +86,20 @@ def assets():
     server_hardwares = oneview_client.server_hardware
     server_hardware_all = server_hardwares.get_all()
     all_profiles = server_profiles.get_all()
+    profile_templates = oneview_client.server_profile_templates
+    all_templates = profile_templates.get_all()    
+    
+    templatesUri = {}
+    for template in all_templates:
+      templatesUri[template['uri']] = template['name']
+    
     for profile in all_profiles:
       role = ''
       if 'master' in profile['name']: role = 'master'
       if 'worker' in profile['name']: role = 'worker'
       asset = {'role':role, 'username':os.environ.get('ONEVIEWSDK_USERNAME', ''),'password':os.environ.get('ONEVIEWSDK_PASSWORD', '')}
+      if profile['serverProfileTemplateUri'] is not None and templatesUri[profile['serverProfileTemplateUri']]:
+        asset['template']=templatesUri[profile['serverProfileTemplateUri']];
       for conn in profile['connectionSettings']['connections']:
         if conn['name'] == "RedHat_MGMT":
           asset['mac']=conn['mac']
