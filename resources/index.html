@@ -31,6 +31,11 @@ function showAsset(asset) {
                 html += "<td class='cell'>CLUSTER</td><td>" + assets[asset].cluster + "</td>";
                 html += "</tr>";
         }    
+        if (assets[asset].template != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>TEMPLATE</td><td>" + assets[asset].template + "</td>";
+                html += "</tr>";
+        }        
         html += "</table>";
         return html;
 }
