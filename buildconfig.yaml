@@ -2,6 +2,7 @@ kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
   name: "oneview-2-acm-assets" 
+  namespace: open-cluster-management
 spec:
   output:
     to:
