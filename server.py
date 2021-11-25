@@ -106,8 +106,9 @@ def assets():
         if conn['name'] == "RedHat_WRKLD":
           asset['mac-baremetal']=conn['mac']        
       for hard in server_hardware_all:
-        if hard['uri'] == profile['serverHardwareUri'] and hard['powerState'] == 'Off' and hard['maintenanceMode'] == False:
+        if hard['uri'] == profile['serverHardwareUri'] and hard['maintenanceMode'] == False:
           asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
+        asset['power'] = hard['powerState']
       cluster = None
       try:
           file=open("assets/"+profile['name']+".cluster")
@@ -115,8 +116,8 @@ def assets():
           file.close()
       except Exception as ee:
           pass
-      if 'url' in asset and 'mac' in asset and 'role' in asset:
-        if 'cluster' not in asset:
+      if 'power' in asset and 'url' in asset and 'mac' in asset and 'role' in asset:
+        if 'cluster' not in asset and asset['power'] == 'Off':
           file=open('assets/'+profile['name']+'.yaml', 'w+')
           str=yaml.replace('@name@', profile['name'])
           for key in ['url', 'mac', 'role']:
