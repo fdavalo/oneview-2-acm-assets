@@ -108,7 +108,7 @@ def assets():
       for hard in server_hardware_all:
         if hard['uri'] == profile['serverHardwareUri'] and hard['maintenanceMode'] == False:
           asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
-        asset['power'] = hard['powerState']
+          asset['power'] = hard['powerState']
       cluster = None
       try:
           file=open("assets/"+profile['name']+".cluster")
