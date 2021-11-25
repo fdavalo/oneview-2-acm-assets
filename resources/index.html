@@ -36,6 +36,11 @@ function showAsset(asset) {
                 html += "<td class='cell'>TEMPLATE</td><td>" + assets[asset].template + "</td>";
                 html += "</tr>";
         }        
+        if (assets[asset].power != null) {
+                html += "<tr class='row'>";
+                html += "<td class='cell'>POWER</td><td>" + assets[asset].power + "</td>";
+                html += "</tr>";
+        }      
         html += "</table>";
         return html;
 }
