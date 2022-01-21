@@ -141,6 +141,13 @@ def b64(message):
   base64_bytes = base64.b64encode(message_bytes)
   return base64_bytes.decode('ascii')        
 
+def getServerProfileTemplates(all_templates, templateName):
+  templates = {}
+  for template in all_templates:
+    if template['name'] == templateName or template['name'].startswith(templateName+'-'):
+        templates[template['serverHardwareTypeUri']]=template['uri']
+  return templates
+
 def createAsset(serverName, templateName):
   oneview_client = OneViewClient.from_environment_variables()
   server_profiles = oneview_client.server_profiles
@@ -149,6 +156,7 @@ def createAsset(serverName, templateName):
   server_hardware_all = server_hardwares.get_all()
   profile_templates = oneview_client.server_profile_templates
   all_templates = profile_templates.get_all()
+  templates = getServerProfileTemplates(all_templates, templateName)
 
   if serverName != '':
     for prof in all_profiles:
@@ -162,17 +170,13 @@ def createAsset(serverName, templateName):
        serv['maintenanceMode'] == False and \
        serv['model'] == 'ProLiant BL460c Gen9' and \
        serv['state'] == 'NoProfileApplied' and \
-       serv['status'] != 'Critical':
+       serv['status'] != 'Critical' and \
+       templates[serv['serverHarwareTypeUri']] is not None:
       servers.append(serv)
 
-  serv_template = None
-  for template in all_templates:
-    if template['name'] == templateName:
-      serv_template = template;
-
   if len(servers) == 0: return False
-  if serv_template is None: return False
   server = servers[-1];
+  serv_template = templates[server['serverHarwareTypeUri']]
   if serverName == '': serverName = 'node-'+server['serialNumber'].lower();
   ls =  {'controllers': [{'deviceSlot': 'Embedded',
                                    'driveWriteCache': 'Unmanaged',
