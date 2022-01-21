@@ -174,10 +174,20 @@ def createAsset(serverName, templateName):
   if serv_template is None: return False
   server = servers[-1];
   if serverName == '': serverName = 'node-'+server['serialNumber'].lower();
+  ls =  {'controllers': [{'deviceSlot': 'Embedded',
+                                   'driveWriteCache': 'Unmanaged',
+                                   'importConfiguration': False,
+                                   'initialize': False,
+                                   'logicalDrives': [],
+                                   'mode': 'HBA',
+                                   'predictiveSpareRebuild': 'Unmanaged'}],
+                  'reapplyState': 'NotApplying',
+                  'sasLogicalJBODs': []}
   options = dict(
       name=serverName,
       serverHardwareUri=server['uri'],
-      serverProfileTemplateUri=serv_template['uri']
+      serverProfileTemplateUri=serv_template['uri'],
+      localStorage=ls
   )
   profile = oneview_client.server_profiles.create(options, force=True)
 
