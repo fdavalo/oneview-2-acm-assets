@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oneview-create-asset
+  namespace: open-cluster-management
+spec:
+  params:
+    - name: templateName
+      type: string
+    - name: serialNumber
+      type: string
+    - name: serverName
+      type: string
+  steps:
+    - image: quay.io/fdavalo/oneview-2-acm-assets:latest
+      command:
+        - python3
+        - createasset.py
+        - $(inputs.params.templateName)
+        - $(inputs.params.serialNumber)
+        - $(inputs.params.serverName)
+      env:
+        - name: ONEVIEWSDK_IP
+          value: oneview.redhat.hpecic.net
+        - name: ONEVIEWSDK_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: oneview
+              key: username
+        - name: ONEVIEWSDK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: oneview
+              key: password
