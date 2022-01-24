@@ -12,8 +12,47 @@ spec:
     - name: serverName
       type: string
   steps:
-    - image: quay.io/fdavalo/oneview-2-acm-assets:latest
-      command:
+    - command:
+        - python3
+        - poweroff.py
+        - $(inputs.params.serialNumber)
+      env:
+        - name: ONEVIEWSDK_IP
+          value: oneview.redhat.hpecic.net
+        - name: ONEVIEWSDK_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: oneview
+        - name: ONEVIEWSDK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: oneview
+      image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+      name: poweroff
+      resources: {}
+    - command:
+        - python3
+        - deleteprofile.py
+        - $(inputs.params.serialNumber)
+      env:
+        - name: ONEVIEWSDK_IP
+          value: oneview.redhat.hpecic.net
+        - name: ONEVIEWSDK_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: oneview
+        - name: ONEVIEWSDK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: oneview
+      image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+      name: deleteprofile
+      resources: {}
+    - command:
         - python3
         - createasset.py
         - $(inputs.params.templateName)
@@ -25,10 +64,13 @@ spec:
         - name: ONEVIEWSDK_USERNAME
           valueFrom:
             secretKeyRef:
-              name: oneview
               key: username
+              name: oneview
         - name: ONEVIEWSDK_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: oneview
               key: password
+              name: oneview
+      image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+      name: createasset
+      resources: {}
