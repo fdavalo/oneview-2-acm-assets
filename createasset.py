@@ -25,7 +25,7 @@ def createAsset(templateName, serialNumber, serverName):
       
   if serv_template is None:
     print("server template ", templateName," is not found")
-    return False
+    return 2
   
   server = None
   
@@ -36,25 +36,25 @@ def createAsset(templateName, serialNumber, serverName):
 
   if server is None:
     print("hardware with specified serial number not found")
-    return False     
+    return 3     
   if server['serverProfileUri'] is not None:
     print("a server profile already exists for this hardware")
-    return False
+    return 4
   if server['powerState'] != 'Off':
     print("hardware should be Off")
-    return False
+    return 5
   if server['maintenanceMode'] != False:
     print("hardware is in maintenance mode")
-    return False
+    return 6
   if server['model'] != 'ProLiant BL460c Gen9':
     print("hardware model does not match 'ProLiant BL460c Gen9'")
-    return False
+    return 7
   if server['state'] != 'NoProfileApplied':
     print("a profile is already applied to this hardware")
-    return False
+    return 8
   if server['status'] == 'Critical':
     print("hardware is in Critical state")
-    return False
+    return 9
 
   ls =  {'controllers': [{'deviceSlot': 'Embedded',
                            'driveWriteCache': 'Unmanaged',
@@ -75,9 +75,13 @@ def createAsset(templateName, serialNumber, serverName):
 
   options = dict(serverProfileTemplateUri=serv_template['uri'])
   profile.patch(operation="replace", path="/templateCompliance", value="Compliant")
-  return True
+  return 0
     
 if __name__ == '__main__':
     from sys import argv
 
-    createBM4Asset()
+    if len(argv) == 4:
+      sys.exit(createBM4Asset(argv[1],argv[2],argv[3]))
+    else:
+      print("3 arguments needed : templateName, serialNumber, serverName")
+      sys.exit(1)
