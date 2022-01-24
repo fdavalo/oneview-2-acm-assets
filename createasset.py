@@ -81,7 +81,7 @@ if __name__ == '__main__':
     from sys import argv
 
     if len(argv) == 4:
-      sys.exit(createBM4Asset(argv[1],argv[2],argv[3]))
+      sys.exit(createAsset(argv[1],argv[2],argv[3]))
     else:
       print("3 arguments needed : templateName, serialNumber, serverName")
       sys.exit(1)
