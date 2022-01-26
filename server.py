@@ -181,7 +181,7 @@ def createAsset(serverName, templateName):
   ls =  {'controllers': [{'deviceSlot': 'Embedded',
                                    'driveWriteCache': 'Unmanaged',
                                    'importConfiguration': False,
-                                   'initialize': False,
+                                   'initialize': True,
                                    'logicalDrives': [],
                                    'mode': 'HBA',
                                    'predictiveSpareRebuild': 'Unmanaged'}],
