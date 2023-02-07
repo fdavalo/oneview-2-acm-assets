@@ -8,7 +8,7 @@ import sys, os
 import base64
 
 
-def assetInfo(servername, filetype):
+def assetInfo(servername):
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
@@ -70,19 +70,12 @@ def getServerProfileTemplates(all_templates, templateName):
         templates[template['serverHardwareTypeUri']]=template['uri']
   return templates
 
-def oneviewClient():
-  if S.oneviewClient is None:
-    try:
-      S.oneviewClient = OneViewClient.from_environment_variables()
-    except Exception:
-      sys.exit(1)
-  return S.oneviewClient
 
 if __name__ == '__main__':
     from sys import argv
 
-    if len(argv) == 3:
-      sys.exit(infoAsset(argv[1],argv[2]))
+    if len(argv) == 2:
+      sys.exit(infoAsset(argv[1]))
     else:
-      print("2 arguments needed : serverName, fileType")
+      print("1 argument needed : serverName")
       sys.exit(1)
