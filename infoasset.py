@@ -8,8 +8,8 @@ import sys, os
 import base64
 
 
-def infoAsset(servername):
-  file=open('resources/asset.yaml')
+def infoAsset(servername, namespace):
+  file=open('resources/bmh.yaml')
   yaml = file.read()
   file.close()
   oneview_client = OneViewClient.from_environment_variables()
@@ -46,6 +46,7 @@ def infoAsset(servername):
           if profile['name'] == servername:
             file=open('/workspace/result/'+profile['name']+'.yaml', 'w+')
             str=yaml.replace('@name@', profile['name'])
+            str=str.replace('@namespace@', namespace)
             for key in ['url', 'mac', 'role']:
               str = str.replace('@'+key+'@', asset[key])
             str=str.replace('@username64@', b64(asset['username']))
@@ -74,8 +75,8 @@ def getServerProfileTemplates(all_templates, templateName):
 if __name__ == '__main__':
     from sys import argv
 
-    if len(argv) == 2:
-      sys.exit(infoAsset(argv[1]))
+    if len(argv) == 3:
+      sys.exit(infoAsset(argv[1], argv[2]))
     else:
-      print("1 argument needed : serverName")
+      print("2 arguments needed : serverName, namespace")
       sys.exit(1)
