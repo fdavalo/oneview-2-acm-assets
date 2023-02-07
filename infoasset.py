@@ -12,7 +12,7 @@ def infoAsset(servername):
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
-  oneview_client = oneviewClient.from_environment_variables()
+  oneview_client = OneViewClient.from_environment_variables()
   try:
     server_profiles = oneview_client.server_profiles
     server_hardwares = oneview_client.server_hardware
