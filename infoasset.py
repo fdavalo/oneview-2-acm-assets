@@ -8,7 +8,7 @@ import sys, os
 import base64
 
 
-def assetInfo(servername):
+def infoAsset(servername):
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
