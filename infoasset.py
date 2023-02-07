@@ -44,19 +44,19 @@ def assetInfo(servername):
       if 'power' in asset and 'url' in asset and 'mac' in asset and 'role' in asset:
         if asset['power'] == 'Off':
           if profile['name'] == servername:
-            if filetype == "yaml":
-              str=yaml.replace('@name@', profile['name'])
-              for key in ['url', 'mac', 'role']:
-                str = str.replace('@'+key+'@', asset[key])
-              str=str.replace('@username64@', b64(asset['username']))
-              str=str.replace('@password64@', b64(asset['password']))
-              return str
-            if filetype == "yaml": 
-              return asset['mac-baremetal']
-        assets[profile['name']]=asset
+            file=open('/workspace/'+profile['name']+'.yaml', 'w+')
+            str=yaml.replace('@name@', profile['name'])
+            for key in ['url', 'mac', 'role']:
+              str = str.replace('@'+key+'@', asset[key])
+            str=str.replace('@username64@', b64(asset['username']))
+            str=str.replace('@password64@', b64(asset['password']))
+            file.write(str)
+            file.close()
+            file=open('/workspace/'+profile['name']+'.mac', 'w+')
+            file.write(asset['mac-baremetal'])
+            file.close()
   except Exception as e:
     pprint(e)
-  return ""
 
 def b64(message):
   message_bytes = message.encode('ascii')
