@@ -44,7 +44,7 @@ def assetInfo(servername):
       if 'power' in asset and 'url' in asset and 'mac' in asset and 'role' in asset:
         if asset['power'] == 'Off':
           if profile['name'] == servername:
-            file=open('/workspace/'+profile['name']+'.yaml', 'w+')
+            file=open('/workspace/result/'+profile['name']+'.yaml', 'w+')
             str=yaml.replace('@name@', profile['name'])
             for key in ['url', 'mac', 'role']:
               str = str.replace('@'+key+'@', asset[key])
@@ -52,7 +52,7 @@ def assetInfo(servername):
             str=str.replace('@password64@', b64(asset['password']))
             file.write(str)
             file.close()
-            file=open('/workspace/'+profile['name']+'.mac', 'w+')
+            file=open('/workspace/result/'+profile['name']+'.mac', 'w+')
             file.write(asset['mac-baremetal'])
             file.close()
   except Exception as e:
