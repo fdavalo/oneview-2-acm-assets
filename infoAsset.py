@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""
-Very simple HTTP server in python for logging requests
-Usage::
-    ./api.py [<port>]
-"""
-from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import logging
 import json
 from pprint import pprint
@@ -12,54 +7,12 @@ from hpeOneView.oneview_client import OneViewClient
 import sys, os
 import base64
 
-class S(BaseHTTPRequestHandler):
-    oneviewClient = None
-    
-    def _set_response(self, ct):
-        self.send_response(200)
-        self.send_header('Content-type', ct)
-        self.end_headers()
-
-    def do_GET(self):
-        if self.path.startswith("/asset/yaml/"):
-            self._set_response('text/plain')
-            arr = self.path.split("/")
-            if len(arr) > 2: 
-               asset = arr[3]
-              yaml = assetInfo(asset, "yaml")
-              self.wfile.write(yaml.encode('utf-8'))
-            else:
-              self.wfile.write("")
-        if self.path.startswith("/asset/mac/"):
-            self._set_response('text/plain')
-            arr = self.path.split("/")
-            if len(arr) > 2: 
-               asset = arr[3]
-              mac = assetInfo(asset, "mac")
-              self.wfile.write(mac.encode('utf-8'))
-            else:
-              self.wfile.write("")
-        else:
-            self._set_response('text/html')
-            self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
-
-def run(server_class=HTTPServer, handler_class=S, port=80):
-    logging.basicConfig(level=logging.INFO)
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    logging.info('Starting httpd...\n')
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    logging.info('Stopping httpd...\n')
 
 def assetInfo(servername, filetype):
   file=open('resources/asset.yaml')
   yaml = file.read()
   file.close()
-  oneview_client = oneviewClient()
+  oneview_client = oneviewClient.from_environment_variables()
   try:
     server_profiles = oneview_client.server_profiles
     server_hardwares = oneview_client.server_hardware
@@ -128,7 +81,8 @@ def oneviewClient():
 if __name__ == '__main__':
     from sys import argv
 
-    if len(argv) == 2:
-        run(port=int(argv[1]))
+    if len(argv) == 3:
+      sys.exit(infoAsset(argv[1],argv[2]))
     else:
-        run()
+      print("2 arguments needed : serverName, fileType")
+      sys.exit(1)
