@@ -22,7 +22,6 @@ spec:
   bmc:
     address: @url@
     disableCertificateVerification: true
-    credentialsName: onpremise
+    credentialsName: baremetal-asset-secret-@name@
   bootMACAddress: @mac@
-  automatedCleaningMode: baremetal-asset-secret-@name@
   online: true
