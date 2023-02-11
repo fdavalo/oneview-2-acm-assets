@@ -47,8 +47,10 @@ def infoAsset(servername, namespace):
             file=open('/workspace/result/'+profile['name']+'.yaml', 'w+')
             str=yaml.replace('@name@', profile['name'])
             str=str.replace('@namespace@', namespace)
-            for key in ['url', 'mac', 'role']:
+            for key in ['url', 'role']:
               str = str.replace('@'+key+'@', asset[key])
+            if 'mac' in asset:
+               str = str.replace('@mac@', asset['mac'])
             str=str.replace('@username64@', b64(asset['username']))
             str=str.replace('@password64@', b64(asset['password']))
             file.write(str)
