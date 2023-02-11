@@ -41,7 +41,7 @@ def infoAsset(servername, namespace):
         if hard['uri'] == profile['serverHardwareUri'] and hard['maintenanceMode'] == False:
           asset['url']='ipmi://'+hard['mpHostInfo']['mpIpAddresses'][0]['address']
           asset['power'] = hard['powerState']
-      if 'power' in asset and 'url' in asset and 'mac' in asset and 'role' in asset:
+      if 'power' in asset and 'url' in asset and 'role' in asset:
         if asset['power'] == 'Off':
           if profile['name'] == servername:
             file=open('/workspace/result/'+profile['name']+'.yaml', 'w+')
