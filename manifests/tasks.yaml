@@ -1,8 +1,61 @@
+
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oneview-register-asset
+  namespace: hpe-redhat
+spec:
+  params:
+    - name: serverName
+      type: string
+    - name: namespace
+      type: string
+  steps:
+    - command:
+        - python3
+        - infoasset.py
+        - $(inputs.params.serverName)
+        - $(inputs.params.namespace)
+      env:
+        - name: ONEVIEWSDK_IP
+          value: oneview.redhat.hpecic.net
+        - name: ONEVIEWSDK_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: oneview
+        - name: ONEVIEWSDK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: oneview
+      image: 'quay.io/fdavalo/oneview-2-acm-assets:v1'
+      name: infos
+      resources: {}
+    - image: 'image-registry.openshift-image-registry.svc:5000/openshift/cli:latest'
+      name: bmh
+      resources: {}
+      script: |
+        #!/usr/bin/env bash
+        cat /workspace/result/*
+        oc apply -f /workspace/result/$(inputs.params.serverName).yaml
+    - image: registry.access.redhat.com/ubi7/ubi
+      name: mac
+      resources: {}
+      script: >
+        #!/usr/bin/env bash 
+        mac=`cat /workspace/result/$(inputs.params.serverName).mac`
+        curl http://cluster-ip.redhat.hpecic.net:8080 -d
+        "host=$(inputs.params.serverName)&mac=$mac"
+  workspaces:
+    - name: result
+---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: oneview-create-asset
-  namespace: open-cluster-management
+  namespace: hpe-redhat
 spec:
   params:
     - name: templateName
@@ -49,7 +102,7 @@ spec:
             secretKeyRef:
               key: password
               name: oneview
-      image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
+      image: 'quay.io/fdavalo/oneview-2-acm-assets:v1'
       name: deleteprofile
       resources: {}
     - command:
@@ -74,3 +127,66 @@ spec:
       image: 'quay.io/fdavalo/oneview-2-acm-assets:latest'
       name: createasset
       resources: {}
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: clean-pxe-cluster
+  namespace: hpe-redhat
+spec:
+  description: >-
+    Check if cluster already exists and delete the cluster if needed and wait
+    for namespace to be deleted as well
+  params:
+    - default: bm4
+      description: Name of the cluster
+      name: cluster
+      type: string
+  steps:
+    - image: 'image-registry.openshift-image-registry.svc:5000/openshift/cli:latest'
+      name: oc
+      resources: {}
+      script: >
+        #!/usr/bin/env bash
+        oc login https://api.bm1.redhat.hpecic.net:6443 --username=hpe_redhat
+        --password=... --insecure-skip-tls-verify=true
+        #oc new-project $(params.cluster)
+        #oc create rolebinding edit-bmh-$(params.cluster)-user
+        --clusterrole=edit-bmh --user=hpe_redhat -n $(params.cluster) 
+        #oc create rolebinding edit-bmh-$(params.cluster) --clusterrole=edit-bmh
+        --serviceaccount=hpe-redhat:pipeline -n $(params.cluster)
+        TOKEN="`oc whoami -t`"
+        ACM=https://multicloud-console.apps.bm1.redhat.hpecic.net
+        curl -X GET -k $ACM/multicloud/authenticate  -H "Authorization: Bearer
+        $TOKEN" -L --fail -c /tmp/cookies.txt
+        curl -X GET -k
+        $ACM/multicloud/apis/cluster.open-cluster-management.io/v1/managedclusters/$(params.cluster)
+        -H "Authorization: Bearer $TOKEN" -L --fail -b /tmp/cookies.txt
+        ret=$?
+        if [[ $ret -eq 0 ]]; then
+          curl -X DELETE -k $ACM/multicloud/apis/cluster.open-cluster-management.io/v1/managedclusters/$(params.cluster) -H "Authorization: Bearer $TOKEN" -L --fail -b /tmp/cookies.txt
+          while [[ True ]]; do
+            sleep 10
+            curl -X GET -k $ACM/multicloud/apis/cluster.open-cluster-management.io/v1/managedclusters/$(params.cluster) -H "Authorization: Bearer $TOKEN" -L --fail -b /tmp/cookies.txt
+            ret=$?
+            if [[ $ret -ne 0 ]]; then break; fi
+          done
+        fi
+        oc delete bmh ocp-$(params.cluster)-master01 -n $(params.cluster)
+        oc delete bmh ocp-$(params.cluster)-master02 -n $(params.cluster)
+        oc delete bmh ocp-$(params.cluster)-master03 -n $(params.cluster)
+        oc get agent -n $(params.cluster) | grep -v CLUSTER | awk '{system("oc
+        delete agent "$1" -n $(params.cluster)");}'
+        oc delete clusterdeployment $(params.cluster) -n $(params.cluster)
+        oc delete agentclusterinstall $(params.cluster) -n
+        $(params.cluster)        
+        oc get secret -n $(params.cluster) | grep -v
+        pullsecret-$(params.cluster) | grep $(params.cluster) | awk '{system("oc
+        delete secret "$1" -n $(params.cluster)");}'
+        oc delete klusterletaddonconfigs.agent.open-cluster-management.io
+        $(params.cluster) -n $(params.cluster)
+        oc wait bmh/ocp-$(params.cluster)-master01 --for=delete --timeout=-1s
+        oc wait bmh/ocp-$(params.cluster)-master02 --for=delete --timeout=-1s
+        oc wait bmh/ocp-$(params.cluster)-master03 --for=delete --timeout=-1s
+        oc scale  deployment metal3  -n openshift-machine-api --replicas=0
+        exit 0
